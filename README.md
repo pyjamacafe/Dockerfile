@@ -24,7 +24,5 @@ docker start lab
 
 Attach to the container
 ```bash
-Starting Docker
-```bash
 docker attach lab
 ```
