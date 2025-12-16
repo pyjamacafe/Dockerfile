@@ -1,5 +1,5 @@
 # ---- 1. Base image ----
-FROM ubuntu:24.04
+FROM ubuntu:22.04
 
 # ---- 2. Install sudo (and any other packages you need) ----
 RUN apt-get update && \
