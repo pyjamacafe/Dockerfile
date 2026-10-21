@@ -26,6 +26,38 @@ RUN apt-get update && \
 
 # RUN yes | unminimize
 
+# ---- 2b. PocketBeagle 2 (AM6254) cross-build support ----
+# Added for the pocketBeagle2 project (a-class = A53 Linux, m-class = M4F
+# firmware). The aarch64 and arm-none-eabi compilers, dtc, gdb-multiarch,
+# python3-pyelftools, flex/bison/bc, cpio and xz are already installed above;
+# this fills the remaining gaps.
+#
+#   gcc-arm-linux-gnueabihf   U-Boot's first stage (tiboot3.bin, R5 SPL) is armhf
+#   libgnutls28-dev uuid-dev  U-Boot host tools
+#   swig libelf-dev           binman / kernel build
+#   python3-yaml              binman reads its board config as YAML
+#   python3-jsonschema        binman validates that YAML against a schema
+#   yamllint                  also required by binman's ti-board-config entry
+#   fakeroot                  initramfs device nodes without CAP_MKNOD
+#   kmod rsync lz4 zstd       module deps, build helpers, kernel compression
+#   u-boot-tools              mkimage
+#   gdisk dosfstools mtools   build an SD image without root or loop devices
+#     parted e2fsprogs
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        gcc-arm-linux-gnueabihf \
+        libgnutls28-dev uuid-dev swig libelf-dev \
+        python3-yaml python3-jsonschema yamllint \
+        fakeroot kmod rsync lz4 zstd \
+        u-boot-tools \
+        gdisk dosfstools mtools parted e2fsprogs && \
+    rm -rf /var/lib/apt/lists/*
+
+# Sources bind-mounted from a host (especially macOS) can appear to have a
+# foreign owner to git, which makes every git command fail with
+# 'detected dubious ownership'. Harmless and generally useful.
+RUN git config --system --add safe.directory '*'
+
 # ---- 3. Create the non‑root user & add to the sudo group ----
 RUN groupadd -r pyjamacafe && \
     useradd -m -r -g pyjamacafe -s /bin/bash pyjamacafe && \
